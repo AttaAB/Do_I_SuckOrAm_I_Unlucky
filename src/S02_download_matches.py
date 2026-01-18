@@ -4,7 +4,7 @@ import os
 import time           
 import json           
 import requests        
-from get_matches import riot_get
+from 01_get_matches import riot_get
 from pathlib import Path  
 from dotenv import load_dotenv 
 
