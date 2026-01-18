@@ -1,3 +1,5 @@
+"""gets recent match IDs from Riot API for a given Riot ID"""
+
 import os
 import time
 import requests

@@ -1,3 +1,5 @@
+""" downloads full match JSON files from Riot API for a given Riot ID"""
+
 import os            
 import time           
 import json           
