@@ -1,0 +1,20 @@
+S05 — Basic Report: Do I suck or am I unlucky?
+
+Games analyzed: 100
+Wins: 51 | Losses: 49
+
+Average metrics (WIN vs LOSS):
+        kda  cs_per_min  kill_participation  damage_share  vision_per_min
+win                                                                      
+LOSS  1.924       5.462               0.451         0.228           0.617
+WIN   6.094       6.136               0.425         0.220           0.782
+
+Unlucky Index (simple):
+- Loss games: 49
+- Losses where I was top-2 damage share on my team: 27
+- Rate: 0.551
+
+Saved plots to: reports/plots/
+- damage_share_wins_losses.png
+- kill_participation_wins_losses.png
+- cs_vs_damage_share.png
