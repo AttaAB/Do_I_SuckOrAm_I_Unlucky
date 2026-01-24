@@ -1,17 +1,10 @@
-"""
-STEP 04 — Add impact features + isolate my games
+""" Add impact features + isolate my games
 
 Goal:
-- Start from data/processed/players.csv (Step 03 output)
+- Start from data/processed/players.csv S03 output 
 - Identify which row belongs to ME (my PUUID)
 - Compute team totals per match (team kills, team damage, team gold)
 - Create impact metrics (kill participation, damage share, etc.)
-- Save:
-  1) players_with_features.csv (all players, with extra columns)
-  2) my_games.csv (only my rows)
-
-Why:
-- "Suck vs unlucky" needs performance features that are comparable across games.
 """
 
 import os                    
@@ -21,9 +14,7 @@ import pandas as pd
 
 load_dotenv()
 
-# ---------------------------
 # Input/Output paths
-# ---------------------------
 IN_FILE = Path("data/processed/players.csv")  
 OUT_DIR = Path("data/processed")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -31,21 +22,12 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_ALL = OUT_DIR / "players_with_features.csv"
 OUT_ME = OUT_DIR / "my_games.csv"
 
-# ---------------------------
 # Identify "me"
-# ---------------------------
-
 MY_PUUID = os.getenv("RIOT_PUUID")
 
-
 def add_team_totals(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add team totals (per match, per team) so we can compute shares.
-
-    Example:
-    - team_kills = sum of kills for the 5 players on that team in that match
-    - team_damage = sum of damage_to_champions for those 5 players
-    """
+   
+    #Add team totals (per match, per team) so we can compute shares.
     group_cols = ["match_id", "team_id"]
 
     team_totals = (
