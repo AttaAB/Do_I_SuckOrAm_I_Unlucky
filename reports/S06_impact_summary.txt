@@ -1,0 +1,49 @@
+S06 — Role-aware Impact Score Summary
+
+Games: 100 | Wins: 51 | Losses: 49
+
+Avg impact_score (wins):  0.134
+Avg impact_score (losses): 0.104
+
+Unlucky (stronger definition): Lost but top-2 IMPACT on team
+- Loss games: 49
+- Top-2 impact losses: 17
+- Rate: 0.347
+
+Top 10 most 'unlucky' losses (highest impact_score but lost):
+      match_id champion_name    role      kda  cs_per_min  kill_participation  damage_share  vision_per_min  impact_score  impact_rank_on_team
+NA1_5442700198         Sylas  MIDDLE 2.000000    4.971429            1.000000      0.420723        0.171429      1.461554                  1.0
+NA1_5445405097  Heimerdinger     TOP 6.333333    5.747393            0.760000      0.432676        0.579374      1.390777                  1.0
+NA1_5452093615          Ekko  MIDDLE 3.285714    5.433526            0.821429      0.328000        0.751445      1.101599                  1.0
+NA1_5447102299          Ekko  MIDDLE 4.666667    6.022872            0.736842      0.287691        1.168996      1.076054                  1.0
+NA1_5445258829          Ekko UNKNOWN 0.000000    0.677966            0.000000      0.082998        0.000000      1.039230                  1.0
+NA1_5443558815          Ekko  MIDDLE 4.666667    5.714286            0.777778      0.332201        0.426439      0.962380                  1.0
+NA1_5446993675          Ekko  MIDDLE 2.600000    6.477733            0.684211      0.303825        0.688259      0.938729                  1.0
+NA1_5446980948          Ekko  MIDDLE 2.666667    5.050710            0.727273      0.332449        0.669371      0.845538                  1.0
+NA1_5452118454          Ekko  MIDDLE 9.000000    6.189474            0.509434      0.322670        1.162105      0.845053                  1.0
+NA1_5443981883          Ekko  JUNGLE 2.333333    6.497845            0.736842      0.183788        0.872845      0.691878                  2.0
+
+Top 10 lowest-impact losses (potential 'I played poorly' games):
+      match_id champion_name   role      kda  cs_per_min  kill_participation  damage_share  vision_per_min  impact_score  impact_rank_on_team
+NA1_5444020417          Kayn JUNGLE 0.000000    3.636364            0.000000      0.000000        0.363636     -2.124400                  5.0
+NA1_5444176075        Khazix JUNGLE 0.000000    3.057325            0.000000      0.262921        0.382166     -0.881311                  3.0
+NA1_5445491120         Galio MIDDLE 0.333333    6.069652            0.125000      0.174555        0.646766     -0.663422                  5.0
+NA1_5444145933       Ambessa    TOP 0.875000    4.857469            0.205882      0.182836        0.547320     -0.659303                  4.0
+NA1_5445385447         Vayne BOTTOM 0.750000    4.778013            0.333333      0.162446        0.549683     -0.600634                  5.0
+NA1_5443742973        Rengar JUNGLE 0.833333    4.966278            0.333333      0.139026        0.551809     -0.573825                  4.0
+NA1_5450494106          Ekko MIDDLE 0.600000    4.522207            0.300000      0.225204        0.403769     -0.550752                  4.0
+NA1_5444521480          Ekko JUNGLE 1.625000    4.760870            0.342105      0.142510        0.684783     -0.531007                  5.0
+NA1_5447750091          Ekko MIDDLE 1.166667    4.551724            0.368421      0.187438        0.677116     -0.463908                  4.0
+NA1_5452609696  Heimerdinger    TOP 0.000000    6.681514            0.000000      0.316536        0.133630     -0.365686                  3.0
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Over my last 100 games, I went 51–49, so my results are basically even overall.
+
+Using the role-aware impact_score, my average impact is slightly higher in wins (0.134) than in losses (0.104). This suggests my measured performance tends to be a bit better in games I win (as expected), but the difference isn’t huge—my impact (as currently defined) isn’t dramatically different between wins and losses.
+
+For the “unlucky” signal (stronger definition: I lost but was top-2 impact on my team), I had 49 losses, and in 17 of them I was top-2 impact on my team. That’s a rate of 
+34.7% (~35%), meaning roughly 1 out of every 3 losses looks like a game where I performed relatively well (compared to my teammates) but still lost.
+
+The report also highlights two useful buckets of games:
+      - Most “unlucky” losses: losses where my impact_score was highest (often rank #1 on my team). These are the clearest examples of strong performance despite a loss.
+      - Lowest-impact losses: losses where my impact_score was lowest. These are the most likely “I played poorly” games and are the most actionable for improvement.
