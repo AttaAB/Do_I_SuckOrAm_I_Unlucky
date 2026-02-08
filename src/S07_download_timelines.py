@@ -86,5 +86,6 @@ def main():
 
     print("Done! Timelines saved in data/timeline_raw/")
 
+# allows the script to be run directly without importing
 if __name__ == "__main__":
     main()
