@@ -235,7 +235,7 @@ st.markdown("""
 st.divider()
 
 # High-value review games (full dataset)
-st.subheader("High-value review games (full dataset)")
+st.subheader("Notable Games")
 
 HIGH_EXP = 0.65
 LOW_EXP = 0.35
