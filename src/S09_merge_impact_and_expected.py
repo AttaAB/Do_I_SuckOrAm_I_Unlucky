@@ -94,7 +94,7 @@ def main():
     
     # Write report
     lines = []
-    lines.append("STEP 10 — Game Buckets (Impact + Expected Win @10min)\n")
+    lines.append("S09— Game Buckets (Impact + Expected Win @10min)\n")
     lines.append(f"Games merged: {len(df)}\n")
     lines.append("Bucket counts:")
     lines.append(bucket_counts.to_string())
