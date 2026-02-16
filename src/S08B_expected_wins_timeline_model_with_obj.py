@@ -1,20 +1,9 @@
 """
-Expected wins model using EARLY-game (timeline) features
+Identical to S08, but I include two new features in the model that capture early objectives:
+- Dragons
+- Turret plates
 
-Goal:
-- Build early-game features at 10 minutes from timeline JSON:
-  - gold_diff_10 (my team - enemy)
-  - xp_diff_10
-  - cs_diff_10
-  - kills_diff_10 (from champion kill events up to 10:00
-- Train a simple logistic regression model: P(win | early features)
-- Compute:
-  - expected_wins = sum(p_win)
-  - luck_diff = actual_wins - expected_wins
-- Save per-game probabilities + a short report.
-
-Why:
-- Early-game features avoid "end-of-game leakage" and make the luck analysis fairer.
+IDK if I will use them in the final version of the report, but I want to see if they add predictive power to the model.
 """
 
 import json                        
