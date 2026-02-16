@@ -2,3 +2,9 @@
 .venv/
 __pycache__/
 data/
+
+# ✅ allow only the dashboard-ready outputs
+!data/processed/
+!data/processed/my_games_with_impact.csv
+!data/processed/expected_win_probs.csv
+!data/processed/my_games_scored.csv
