@@ -228,9 +228,22 @@ st.caption(
 )
 
 plot_df = f.rename(columns={"p_win_10min": "expected_win_10"})[["expected_win_10", "impact_score"]].copy()
-fig = px.scatter(plot_df, x="expected_win_10", y="impact_score")
-st.plotly_chart(fig, use_container_width=True)
 
+fig = px.scatter(
+    plot_df,
+    x="expected_win_10",
+    y="impact_score",
+    hover_data={
+        "match_id": True,
+        "champion_name": ("champion_name" in plot_df.columns),
+        "role": ("role" in plot_df.columns),
+        "win": True,
+        "expected_win_10": ":.3f",
+        "impact_score": ":.3f",
+    },
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("""
 **How to read the scatter (quadrants):**
