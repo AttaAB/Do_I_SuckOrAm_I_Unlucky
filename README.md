@@ -12,9 +12,7 @@ Within a few days, I remembered **exactly** why I retired.
 Because I kept losing games that I **clearly** should have won …or so I thought.
 
 Instead of defaulting to “team diff” and staying delusional forever, I decided to do something different:  
-I built an analytics project to answer the question once and for all:
-
-### **Am I Unlucky… or do I actually just suck?**
+I built an analytics project to answer the question once and for all: **Am I Unlucky… or do I actually just suck?**
 
 ---
 
@@ -80,6 +78,8 @@ I combine role-aware z-scores into one number:
 
 impact_score =
 0.35 * z_damage_share + 0.30 * z_KP + 0.25 * z_CS/min + 0.10 * z_vision/min
+
+> **Note on impact_score weights:** I realize these weights are somewhat arbitrary — I picked them based on personal experience and what *felt* most influential in-game (damage + KP > CS > vision). This can definitely be made more robust.
 
 Then I compute:
 - **impact_rank_on_team** (1 = highest impact among my 5 teammates)
@@ -150,7 +150,6 @@ After merging impact + expected win, I label games like:
 - **THROW?**: high expected win + low impact + loss  
 - **NORMAL**: everything else
 
-(Thresholds are easy to tune.)
 Current thresholds (easy to tune):
 
 `High expected win: p_win > 0.65`
@@ -161,7 +160,7 @@ Current thresholds (easy to tune):
 
 `Low impact: impact_score < -0.5`
 
-Note: these thresholds are a starting point — a more robust approach would be using percentiles (ex: top/bottom 25% for “high/low”), which I’ll likely add.
+> **Note on thresholds**: these thresholds are a starting point — a more robust approach would be using percentiles (ex: top/bottom 25% for “high/low”), which I’ll likely add.
 
 ---
 
@@ -181,3 +180,47 @@ You’ll end up with:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+### 2) Install packages
+```bash
+pip install -r requirements.txt
+```
+
+### 3) Add a .env file
+```
+RIOT_API_KEY=PASTE_YOUR_KEY_HERE
+RIOT_GAME_NAME=YourNameHere
+RIOT_TAG_LINE=NA1
+RIOT_REGION_GROUP=americas
+RIOT_PUUID=YOUR_PUUID_HERE
+```
+
+### 4) Run the pipeline scripts (in order)
+Run each `src/S0X_.py` file in sequence:
+download → build tables → features → impact → timelines → expected wins → merge
+
+### 5) Personal Streamlit dashboard
+To launch the interactive dashboard locally, run:
+
+```bash
+streamlit run app.py
+```
+---
+
+## Notes / limitations
+- This is a learning project, not a perfect “truth machine.”
+- Sample size matters: small match counts = noisy model.
+- impact_score weights are subjective (I’m open to improving them).
+- The expected-win model is intentionally simple — there are definitely more advanced ways to do this.
+
+## Future improvements (if I don’t get tilted and quit again)
+- Better feature engineering (matchups, scaling champs, objective timings)
+- Make wieghts and thresholds more robust
+- Add game-level rankings (impact vs all 10 players, not just team)
+- Better dashboard visuals + match drilldowns
+
+## Feedback
+
+If you have suggestions to make the analysis more robust or the code cleaner, please let me know!
+New to this, but extremely willing to learn 
