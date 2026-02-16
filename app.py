@@ -3,6 +3,7 @@ Streamlit dashboard for: "Do I suck or am I unlucky?"
 """
 
 from pathlib import Path
+from io import BytesIO
 import pandas as pd
 import streamlit as st
 
@@ -17,14 +18,33 @@ PROBS = Path("data/processed/expected_win_probs.csv")
 # S09 output (optional): your impact + expected probs merged + bucket labels
 SCORED = Path("data/processed/my_games_scored.csv")
 
-
-# -----------------------------
 # Helpers
-# -----------------------------
 @st.cache_data
 def load_df(path: Path) -> pd.DataFrame:
-    """Load a CSV into a pandas DataFrame (cached for speed)."""
+    """Load a CSV from disk into a pandas DataFrame (cached for speed)."""
     return pd.read_csv(path)
+
+
+@st.cache_data
+def load_df_bytes(b: bytes) -> pd.DataFrame:
+    """Load a CSV from uploaded bytes into a pandas DataFrame (cached)."""
+    return pd.read_csv(BytesIO(b))
+
+
+def load_required_csv(path: Path, label: str) -> pd.DataFrame:
+    """
+    Minimal deploy-safe loader:
+    - If file exists in the repo/runtime, load from disk.
+    - Else (common in Streamlit deploy), ask user to upload it.
+    """
+    if path.exists():
+        return load_df(path)
+
+    st.warning(f"Missing file in deployment: {path}. Please upload **{label}** to continue.")
+    up = st.file_uploader(f"Upload {label}", type=["csv"], key=f"upload_{path}")
+    if up is None:
+        st.stop()
+    return load_df_bytes(up.getvalue())
 
 
 def build_scored_from_parts() -> pd.DataFrame:
@@ -32,8 +52,8 @@ def build_scored_from_parts() -> pd.DataFrame:
     Build the "scored" dataset inside the app (merge impact + expected win probs).
     This uses ONLY S08 probabilities: expected_win_probs.csv (p_win_10min).
     """
-    impact_df = load_df(IMPACT)
-    probs_df = load_df(PROBS)[["match_id", "p_win_10min"]].copy()
+    impact_df = load_required_csv(IMPACT, "my_games_with_impact.csv (S06)")
+    probs_df = load_required_csv(PROBS, "expected_win_probs.csv (S08)")[["match_id", "p_win_10min"]].copy()
     df = impact_df.merge(probs_df, on="match_id", how="inner")
     return df
 
@@ -44,20 +64,17 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
     - p_win: expected probability of winning at 10 minutes
     - win: actual outcome
     - impact: your impact_score
-
-    Thresholds are intentionally simple.
     """
-    HIGH_EXP = 0.65  # "we should win" territory at 10 minutes
-    LOW_EXP = 0.35   # "we should lose" territory at 10 minutes
-    HIGH_IMP = 0.5   # you played clearly above-average
-    LOW_IMP = -0.5   # you played clearly below-average
+    HIGH_EXP = 0.65
+    LOW_EXP = 0.35
+    HIGH_IMP = 0.5
+    LOW_IMP = -0.5
 
     high_exp = p_win >= HIGH_EXP
     low_exp = p_win <= LOW_EXP
     high_imp = impact >= HIGH_IMP
     low_imp = impact <= LOW_IMP
 
-    # Strongest categories (combine expectation + your personal impact)
     if (not win) and high_exp and high_imp:
         return "UNLUCKY LOSS (high exp, high impact)"
     if (not win) and high_exp and low_imp:
@@ -65,7 +82,6 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
     if win and low_exp and high_imp:
         return "CLUTCH WIN (low exp, high impact)"
 
-    # Softer categories (expectation only)
     if (not win) and high_exp:
         return "UNLUCKY LOSS (high exp)"
     if win and low_exp:
@@ -75,13 +91,7 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
 
 
 def luck_metrics(d: pd.DataFrame) -> dict:
-    """
-    Compute:
-    - games
-    - actual_wins
-    - expected_wins = sum(p_win_10min)
-    - luck_diff = actual_wins - expected_wins
-    """
+    """Compute luck metrics for a dataframe."""
     if len(d) == 0:
         return {"games": 0, "actual_wins": 0, "expected_wins": 0.0, "luck_diff": 0.0}
 
@@ -113,12 +123,11 @@ st.set_page_config(page_title="Do I suck or am I unlucky?", layout="wide")
 st.title("Do I suck or am I unlucky?")
 st.caption("I got tired of blaming ‘team diff’ without receipts… so I built this to tell me if I actually suck or if I’m just unlucky.")
 
-# Load data
-# Logic:
-# - If S09 scored file exists (which it should), load it
-# - Else, merge S06 impact + S08 probs inside the app
+# Load data (deploy-safe)
+# - If SCORED exists, use it
+# - Else, build from IMPACT + PROBS
 if SCORED.exists():
-    df = load_df(SCORED)
+    df = load_required_csv(SCORED, "my_games_scored.csv (S09)")
 else:
     df = build_scored_from_parts()
 
@@ -128,7 +137,7 @@ missing = required_cols - set(df.columns)
 if missing:
     st.error(
         f"Missing required columns: {missing}. "
-        "Make sure you've run S06 (impact) and S08 (expected win probabilities)."
+        "Make sure your CSVs include these columns."
     )
     st.stop()
 
@@ -180,15 +189,14 @@ st.subheader("Luck differential")
 st.caption("Luck Differential = Actual Wins − Expected Wins, where Expected Wins = Σ p_win_10min.")
 
 lc1, lc2, lc3, lc4 = st.columns(4)
-
-lc1.metric("Luck diff", f"{filt_luck['luck_diff']:.2f}")
-lc2.metric("Actual wins", filt_luck["actual_wins"])
-lc3.metric("Expected wins", f"{filt_luck['expected_wins']:.2f}")
-lc4.metric("Interpretation", luck_label(filt_luck["luck_diff"]))
+lc1.metric("Luck diff (filtered)", f"{filt_luck['luck_diff']:.2f}")
+lc2.metric("Actual wins (filtered)", filt_luck["actual_wins"])
+lc3.metric("Expected wins (filtered)", f"{filt_luck['expected_wins']:.2f}")
+lc4.metric("Interpretation (filtered)", luck_label(filt_luck["luck_diff"]))
 
 st.caption(
-    f"Overall (all games): luck_diff = {filt_luck['luck_diff']:.2f} "
-    f"(actual {filt_luck['actual_wins']} vs expected {filt_luck['expected_wins']:.2f})."
+    f"Overall (all games): luck_diff = {full_luck['luck_diff']:.2f} "
+    f"(actual {full_luck['actual_wins']} vs expected {full_luck['expected_wins']:.2f})."
 )
 
 st.divider()
@@ -197,14 +205,14 @@ st.divider()
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Games played", len(f))
-col2.metric("Win rate ", round(float(f["win"].mean()), 3) if len(f) else 0.0)
+col2.metric("Win rate", f"{(float(f['win'].mean())*100):.1f}%" if len(f) else "0.0%")
 col3.metric("Avg impact_score", round(float(f["impact_score"].mean()), 3) if len(f) else 0.0)
-col4.metric("Avg expected win @ 10 minutes", round(float(f["p_win_10min"].mean()), 3) if len(f) else 0.0)
+col4.metric("Avg expected win @ 10 minutes",f"{(float(f['p_win_10min'].mean())*100):.1f}%" if len(f) else "0.0%")
 
 st.divider()
 
 # Bucket counts
-st.subheader("Bucket counts (full dataset)")
+st.subheader("Bucket counts (filtered)")
 bucket_counts = f["bucket"].value_counts().reset_index()
 bucket_counts.columns = ["bucket", "count"]
 st.dataframe(bucket_counts, use_container_width=True)
@@ -234,7 +242,7 @@ st.markdown("""
 
 st.divider()
 
-# High-value review games (full dataset)
+# Notable Matches
 st.subheader("Notable Games")
 
 HIGH_EXP = 0.65
@@ -265,10 +273,7 @@ with c2:
 
 st.divider()
 
-
-# -----------------------------
 # Filtered games table
-# -----------------------------
 st.subheader("Filtered games table")
 st.dataframe(
     f[show_cols].sort_values("p_win_10min", ascending=False),
@@ -276,7 +281,6 @@ st.dataframe(
 )
 
 st.divider()
-
 
 # Match drill-down
 st.subheader("Match details")
