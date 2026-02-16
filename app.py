@@ -195,8 +195,8 @@ lc3.metric("Expected wins", f"{filt_luck['expected_wins']:.2f}")
 lc4.metric("Interpretation", luck_label(filt_luck["luck_diff"]))
 
 st.caption(
-    f"Overall (all games): luck_diff = {full_luck['luck_diff']:.2f} "
-    f"(actual {full_luck['actual_wins']} vs expected {full_luck['expected_wins']:.2f})."
+    f"Overall: luck_diff = {filt_luck['luck_diff']:.2f} "
+    f"(actual {filt_luck['actual_wins']} vs expected {filt_luck['expected_wins']:.2f})."
 )
 
 st.divider()
