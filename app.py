@@ -121,7 +121,7 @@ def luck_label(luck_diff: float) -> str:
 # Streamlit UI setup
 st.set_page_config(page_title="Do I suck or am I unlucky?", layout="wide")
 st.title("Do I suck or am I unlucky?")
-st.caption("I got tired of blaming ‘team diff’ without receipts… so I built this to tell me if I actually suck or if I’m just unlucky.")
+st.caption("I got tired of blaming ‘team diff’ without receipts… so I built this to tell me if I’m unlucky or if I acctually just suck.")
 
 # Load data (deploy-safe)
 # - If SCORED exists, use it
@@ -212,7 +212,7 @@ col4.metric("Avg expected win @ 10 minutes",f"{(float(f['p_win_10min'].mean())*1
 st.divider()
 
 # Bucket counts
-st.subheader("Bucket counts (filtered)")
+st.subheader("Bucket counts")
 bucket_counts = f["bucket"].value_counts().reset_index()
 bucket_counts.columns = ["bucket", "count"]
 st.dataframe(bucket_counts, use_container_width=True)
