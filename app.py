@@ -223,12 +223,6 @@ st.divider()
 # Scatter plot: expected win vs impact score
 st.subheader("Impact vs Expected Win @ 10 minutes")
 st.caption(
-    "Each dot represents a game. Further right = higher expected win at 10 minutes. "
-    "Higher up = higher personal impact (role-aware)."
-)
-
-st.subheader("Impact vs Expected Win @ 10 minutes")
-st.caption(
     "Each dot is one of your games. Further right = higher expected win at 10 minutes. "
     "Higher up = higher personal impact (role-aware)."
 )
