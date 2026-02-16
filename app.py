@@ -9,13 +9,13 @@ import streamlit as st
 
 # Paths
 
-# S06 output: your games + impact_score (+ other metrics)
+# S06 output: games + impact_score (+ other metrics)
 IMPACT = Path("data/processed/my_games_with_impact.csv")
 
 # S08 output: expected win probability at 10 minutes (timeline-only, no objectives)
 PROBS = Path("data/processed/expected_win_probs.csv")
 
-# S09 output (optional): your impact + expected probs merged + bucket labels
+# S09 output (optional): impact + expected probs merged + bucket labels
 SCORED = Path("data/processed/my_games_scored.csv")
 
 # Helpers
@@ -63,7 +63,7 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
     Assign a simple label ("bucket") based on:
     - p_win: expected probability of winning at 10 minutes
     - win: actual outcome
-    - impact: your impact_score
+    - impact: impact_score
     """
     HIGH_EXP = 0.65
     LOW_EXP = 0.35
@@ -137,7 +137,7 @@ missing = required_cols - set(df.columns)
 if missing:
     st.error(
         f"Missing required columns: {missing}. "
-        "Make sure your CSVs include these columns."
+        "Make sure CSVs include these columns."
     )
     st.stop()
 
@@ -189,10 +189,10 @@ st.subheader("Luck differential")
 st.caption("Luck Differential = Actual Wins − Expected Wins, where Expected Wins = Σ p_win_10min.")
 
 lc1, lc2, lc3, lc4 = st.columns(4)
-lc1.metric("Luck diff (filtered)", f"{filt_luck['luck_diff']:.2f}")
-lc2.metric("Actual wins (filtered)", filt_luck["actual_wins"])
-lc3.metric("Expected wins (filtered)", f"{filt_luck['expected_wins']:.2f}")
-lc4.metric("Interpretation (filtered)", luck_label(filt_luck["luck_diff"]))
+lc1.metric("Luck diff", f"{filt_luck['luck_diff']:.2f}")
+lc2.metric("Actual wins", filt_luck["actual_wins"])
+lc3.metric("Expected wins", f"{filt_luck['expected_wins']:.2f}")
+lc4.metric("Interpretation", luck_label(filt_luck["luck_diff"]))
 
 st.caption(
     f"Overall (all games): luck_diff = {full_luck['luck_diff']:.2f} "
@@ -222,7 +222,7 @@ st.divider()
 # Scatter plot: expected win vs impact score
 st.subheader("Impact vs Expected Win @ 10 minutes")
 st.caption(
-    "Each dot is one of your games. Further right = higher expected win at 10 minutes. "
+    "Each dot represents a game. Further right = higher expected win at 10 minutes. "
     "Higher up = higher personal impact (role-aware)."
 )
 
@@ -309,4 +309,4 @@ m2.metric("CS/min", round(float(row.get("cs_per_min", 0.0)), 2))
 m3.metric("Kill Participation", round(float(row.get("kill_participation", 0.0)), 3))
 m4.metric("Damage Share", round(float(row.get("damage_share", 0.0)), 3))
 
-st.caption("So.... are you unlucky, or do you just suck? 🤔")
+st.caption("So.... am I unlucky, or do I just suck? 🤔")
