@@ -186,7 +186,7 @@ def build_features_for_match(match_id: str, my_puuid: str) -> dict:
         "kills_diff_10": kills_diff_10,
     }
 
-# This function loops through your matches, builds features, trains a model, and writes the report
+# This function loops through matches, builds features, trains a model, and writes the report
 def main():
     if not MY_GAMES_FILE.exists():
         raise FileNotFoundError("my_games.csv not found. Run S04 first.")
@@ -237,8 +237,8 @@ def main():
     lines.append(f"Luck diff (actual - expected): {luck_diff:.2f}")
     lines.append("")
     lines.append("Interpretation:")
-    lines.append("- If luck_diff is NEGATIVE, you won fewer games than expected (unlucky).")
-    lines.append("- If luck_diff is POSITIVE, you won more games than expected (lucky).")
+    lines.append("- If luck_diff is NEGATIVE, fewer games were won than expected (unlucky).")
+    lines.append("- If luck_diff is POSITIVE, more games were won than expected (lucky).")
     lines.append("")
     lines.append("Top 10 most 'unlucky' games (high p_win but loss):")
     unlucky_games = df[df["win"] == False].sort_values("p_win_10min", ascending=False).head(10)
