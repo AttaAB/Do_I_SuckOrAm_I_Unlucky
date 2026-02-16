@@ -228,10 +228,27 @@ st.caption(
     "Higher up = higher personal impact (role-aware)."
 )
 
-plot_df = f.rename(columns={"p_win_10min": "expected_win_10"})[["expected_win_10", "impact_score"]].copy()
-fig = px.scatter(plot_df, x="expected_win_10", y="impact_score")
-st.plotly_chart(fig, use_container_width=True)
+plot_df = f.rename(columns={"p_win_10min": "expected_win_10"})
 
+cols = ["expected_win_10", "impact_score", "match_id", "win", "champion_name", "role"]
+cols = [c for c in cols if c in plot_df.columns]  # keep only columns that exist
+plot_df = plot_df[cols].copy()
+
+fig = px.scatter(
+    plot_df,
+    x="expected_win_10",
+    y="impact_score",
+    hover_data={
+        "match_id": True,
+        "champion_name": ("champion_name" in plot_df.columns),
+        "role": ("role" in plot_df.columns),
+        "win": ("win" in plot_df.columns),
+        "expected_win_10": ":.3f",
+        "impact_score": ":.3f",
+    },
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("""
 **How to read the scatter (quadrants):**
