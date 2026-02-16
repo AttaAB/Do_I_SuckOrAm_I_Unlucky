@@ -7,8 +7,8 @@ Goal:
   - damage_share
   - cs_per_min
   - vision_per_min
-- Make it role-aware by standardizing metrics within each role (TOP/JUNGLE/MIDDLE/BOTTOM/UTILITY)
-- Rank you on your team by impact_score each match
+- Make it role-aware by standardizing metrics within each role (TOP/JUNGLE/MIDDLE/BOTTOM/SUPPORT)
+- Rank me on my team by impact_score each match
 - Identify "unlucky losses": losses where you were top-2 impact on your team
 """
 
