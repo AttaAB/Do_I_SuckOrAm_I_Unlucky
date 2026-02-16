@@ -221,6 +221,7 @@ st.dataframe(bucket_counts, use_container_width=True)
 st.divider()
 
 # Scatter plot: expected win vs impact score
+
 st.subheader("Impact vs Expected Win @ 10 minutes")
 st.caption(
     "Each dot is one of your games. Further right = higher expected win at 10 minutes. "
@@ -228,22 +229,9 @@ st.caption(
 )
 
 plot_df = f.rename(columns={"p_win_10min": "expected_win_10"})[["expected_win_10", "impact_score"]].copy()
-
-fig = px.scatter(
-    plot_df,
-    x="expected_win_10",
-    y="impact_score",
-    hover_data={
-        "match_id": True,
-        "champion_name": ("champion_name" in plot_df.columns),
-        "role": ("role" in plot_df.columns),
-        "win": True,
-        "expected_win_10": ":.3f",
-        "impact_score": ":.3f",
-    },
-)
-
+fig = px.scatter(plot_df, x="expected_win_10", y="impact_score")
 st.plotly_chart(fig, use_container_width=True)
+
 
 st.markdown("""
 **How to read the scatter (quadrants):**
