@@ -2,7 +2,7 @@
 Download match timeline JSON (early-game data)
 
 Goal:
-- For each match you already downloaded (data/raw/*.json),
+- For each match already downloaded (data/raw/*.json),
   download its timeline data using Riot’s timeline endpoint.
 - Save each timeline to data/timeline_raw/{match_id}.json
 
