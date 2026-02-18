@@ -363,6 +363,10 @@ buckets = ["ALL"] + sorted(df["bucket"].dropna().unique().tolist())
 impact_tags = ["ALL"] + sorted(df["impact_tag"].dropna().unique().tolist())
 
 #Side bar filter choices
+st.sidebar.write("Deployed build check ✅")
+st.sidebar.write("Columns:", list(df.columns))
+st.sidebar.write("Rows:", len(df))
+
 role_choice = st.sidebar.selectbox("Role", roles)
 champ_choice = st.sidebar.selectbox("Champion", champs)
 
@@ -389,6 +393,7 @@ impact_choice = st.sidebar.selectbox("Impact tag", impact_tags)
 win_choice = st.sidebar.selectbox("Result", ["ALL", "WIN", "LOSS"])
 
 # Apply filters
+
 f = df.copy()
 
 if role_choice != "ALL" and "role" in f.columns:
