@@ -4,35 +4,39 @@ Games merged: 100
 
 Bucket counts:
 bucket
-NORMAL                                  85
-CLUTCH WIN (low exp)                     6
-UNLUCKY LOSS (high exp)                  5
-UNLUCKY LOSS (high exp, high impact)     2
-THROW? (high exp, low impact)            1
-CLUTCH WIN (low exp, high impact)        1
+TOSS-UP WIN      23
+TOSS-UP LOSS     21
+EXPECTED LOSS    20
+EXPECTED WIN     18
+UPSET WIN         7
+UPSET LOSS        5
+CLUTCH WIN        2
+UNLUCKY LOSS      2
+THROW             1
+LUCKY WIN         1
 
 Top 10 most 'unlucky' losses (highest p_win but lost):
-      match_id champion_name   role  impact_score  impact_rank_on_team  p_win_10min                               bucket
-NA1_5445335478          Ekko MIDDLE      0.164528                  3.0     0.910353              UNLUCKY LOSS (high exp)
-NA1_5445439464  Heimerdinger    TOP      0.429472                  1.0     0.845286              UNLUCKY LOSS (high exp)
-NA1_5443981883          Ekko JUNGLE      0.691878                  2.0     0.702541 UNLUCKY LOSS (high exp, high impact)
-NA1_5445004354           Lux MIDDLE      0.385726                  1.0     0.683232              UNLUCKY LOSS (high exp)
-NA1_5452894425          Ekko MIDDLE      0.127825                  2.0     0.661691              UNLUCKY LOSS (high exp)
-NA1_5452118454          Ekko MIDDLE      0.845053                  1.0     0.654977 UNLUCKY LOSS (high exp, high impact)
-NA1_5443742973        Rengar JUNGLE     -0.573825                  4.0     0.652861        THROW? (high exp, low impact)
-NA1_5450317106  Heimerdinger    TOP     -0.089480                  4.0     0.651358              UNLUCKY LOSS (high exp)
-NA1_5444035782         Amumu JUNGLE      0.041540                  3.0     0.642184                               NORMAL
-NA1_5445405097  Heimerdinger    TOP      1.390777                  1.0     0.618678                               NORMAL
+      match_id champion_name   role  impact_score  impact_rank_on_team  p_win_10min       bucket
+NA1_5445335478          Ekko MIDDLE      0.164528                  3.0     0.910353   UPSET LOSS
+NA1_5445439464  Heimerdinger    TOP      0.429472                  1.0     0.845286   UPSET LOSS
+NA1_5443981883          Ekko JUNGLE      0.691878                  2.0     0.702541 UNLUCKY LOSS
+NA1_5445004354           Lux MIDDLE      0.385726                  1.0     0.683232   UPSET LOSS
+NA1_5452894425          Ekko MIDDLE      0.127825                  2.0     0.661691   UPSET LOSS
+NA1_5452118454          Ekko MIDDLE      0.845053                  1.0     0.654977 UNLUCKY LOSS
+NA1_5443742973        Rengar JUNGLE     -0.573825                  4.0     0.652861        THROW
+NA1_5450317106  Heimerdinger    TOP     -0.089480                  4.0     0.651358   UPSET LOSS
+NA1_5444035782         Amumu JUNGLE      0.041540                  3.0     0.642184 TOSS-UP LOSS
+NA1_5445405097  Heimerdinger    TOP      1.390777                  1.0     0.618678 TOSS-UP LOSS
 
 Top 10 most 'clutch' wins (lowest p_win but won):
-      match_id champion_name   role  impact_score  impact_rank_on_team  p_win_10min                            bucket
-NA1_5445856406          Ekko MIDDLE      0.067453                  3.0     0.037589              CLUTCH WIN (low exp)
-NA1_5453773386          Ekko MIDDLE      0.165319                  2.0     0.120888              CLUTCH WIN (low exp)
-NA1_5452844383          Ekko MIDDLE     -0.135925                  4.0     0.177425              CLUTCH WIN (low exp)
-NA1_5445815621          Ekko MIDDLE      0.371809                  2.0     0.238291              CLUTCH WIN (low exp)
-NA1_5443643292          Ekko JUNGLE      0.251779                  5.0     0.267670              CLUTCH WIN (low exp)
-NA1_5451375737          Ekko MIDDLE      0.494970                  2.0     0.296532              CLUTCH WIN (low exp)
-NA1_5452862200          Ekko MIDDLE      1.262920                  1.0     0.306686 CLUTCH WIN (low exp, high impact)
-NA1_5443884161          Ekko JUNGLE      0.571401                  1.0     0.352539                            NORMAL
-NA1_5447833843          Ekko MIDDLE     -0.482916                  5.0     0.354067                            NORMAL
-NA1_5447013181          Ekko MIDDLE     -0.762443                  5.0     0.365636                            NORMAL
+      match_id champion_name   role  impact_score  impact_rank_on_team  p_win_10min     bucket
+NA1_5445856406          Ekko MIDDLE      0.067453                  3.0     0.037589  UPSET WIN
+NA1_5453773386          Ekko MIDDLE      0.165319                  2.0     0.120888  UPSET WIN
+NA1_5452844383          Ekko MIDDLE     -0.135925                  4.0     0.177425  UPSET WIN
+NA1_5445815621          Ekko MIDDLE      0.371809                  2.0     0.238291  UPSET WIN
+NA1_5443643292          Ekko JUNGLE      0.251779                  5.0     0.267670  UPSET WIN
+NA1_5451375737          Ekko MIDDLE      0.494970                  2.0     0.296532  UPSET WIN
+NA1_5452862200          Ekko MIDDLE      1.262920                  1.0     0.306686 CLUTCH WIN
+NA1_5443884161          Ekko JUNGLE      0.571401                  1.0     0.352539 CLUTCH WIN
+NA1_5447833843          Ekko MIDDLE     -0.482916                  5.0     0.354067  UPSET WIN
+NA1_5447013181          Ekko MIDDLE     -0.762443                  5.0     0.365636  LUCKY WIN
