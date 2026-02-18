@@ -363,10 +363,6 @@ buckets = ["ALL"] + sorted(df["bucket"].dropna().unique().tolist())
 impact_tags = ["ALL"] + sorted(df["impact_tag"].dropna().unique().tolist())
 
 #Side bar filter choices
-st.sidebar.write("Deployed build check ✅")
-st.sidebar.write("Columns:", list(df.columns))
-st.sidebar.write("Rows:", len(df))
-
 role_choice = st.sidebar.selectbox("Role", roles)
 champ_choice = st.sidebar.selectbox("Champion", champs)
 
