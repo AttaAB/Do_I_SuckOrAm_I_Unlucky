@@ -6,6 +6,7 @@ from pathlib import Path
 from io import BytesIO
 import pandas as pd
 import streamlit as st
+import time
 import plotly.express as px
 
 # Paths
@@ -308,6 +309,38 @@ match_options = f["match_id"].tolist() if len(f) else df["match_id"].tolist()
 selected_match = st.selectbox("Select a match_id", options=match_options)
 
 row = df[df["match_id"] == selected_match].iloc[0]
+
+#-----------------
+#test
+exp10 = float(row["p_win_10min"])
+imp = float(row["impact_score"])
+
+if exp10 <= LOW_EXP and imp <= LOW_IMP:
+    st.markdown(
+        """
+        <style>
+        @keyframes popIn {
+            0%   { transform: scale(0.6); opacity: 0; }
+            60%  { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1.0); opacity: 1; }
+        }
+        .you-suck {
+            text-align: center;
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            padding: 18px 10px;
+            border-radius: 16px;
+            background: rgba(255,0,0,0.12);
+            border: 2px solid rgba(255,0,0,0.35);
+            animation: popIn 420ms ease-out;
+        }
+        </style>
+        <div class="you-suck">YOU SUCK 💀</div>
+        """,
+        unsafe_allow_html=True,
+    )
+#---------------
 
 st.write("### Selected match summary")
 st.json({
