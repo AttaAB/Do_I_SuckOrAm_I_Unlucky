@@ -68,7 +68,7 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
     - impact: impact_score
     """
     HIGH_EXP = 0.65
-    LOW_EXP = 0.35
+    LOW_EXP = 0.40
     HIGH_IMP = 0.5
     LOW_IMP = -0.5
 
@@ -77,19 +77,44 @@ def bucket_rule(p_win: float, win: bool, impact: float) -> str:
     high_imp = impact >= HIGH_IMP
     low_imp = impact <= LOW_IMP
 
-    if (not win) and high_exp and high_imp:
-        return "UNLUCKY LOSS (high exp, high impact)"
+   # Expected WIN but LOSS
     if (not win) and high_exp and low_imp:
-        return "THROW? (high exp, low impact)"
-    if win and low_exp and high_imp:
-        return "CLUTCH WIN (low exp, high impact)"
-
+        return "THROW"
+    if (not win) and high_exp and high_imp:
+        return "UNLUCKY LOSS"
     if (not win) and high_exp:
-        return "UNLUCKY LOSS (high exp)"
-    if win and low_exp:
-        return "CLUTCH WIN (low exp)"
+        return "UPSET LOSS"
 
-    return "NORMAL"
+    # Expected LOSS but WIN
+    if win and low_exp and high_imp:
+        return "CLUTCH WIN"
+    if win and low_exp and low_imp:
+        return "LUCKY WIN"
+    if win and low_exp:
+        return "UPSET WIN"
+
+    # Expected outcomes
+    if win and high_exp:
+        return "EXPECTED WIN"
+    if (not win) and low_exp:
+        return "EXPECTED LOSS"
+
+    # Toss-ups
+    return "TOSS-UP WIN" if win else "TOSS-UP LOSS"
+
+
+def impact_tag(impact: float) -> str:
+    """
+    Add a small secondary tag (OPTION B):
+    - High / Mid / Low impact based on impact_score thresholds
+    """
+    HIGH_IMP = 0.5
+    LOW_IMP = -0.5
+    if impact >= HIGH_IMP:
+        return "HIGH IMPACT"
+    if impact <= LOW_IMP:
+        return "LOW IMPACT"
+    return "MID IMPACT"
 
 
 def luck_metrics(d: pd.DataFrame) -> dict:
@@ -120,6 +145,180 @@ def luck_label(luck_diff: float) -> str:
         return "Kinda unlucky 😭"
     return "About as expected 😐"
 
+#GIf Setup
+def reaction_for_game(p_win: float, win: bool, impact: float) -> dict:
+    """
+    Return a reaction payload for a single game:
+    - title: big text
+    - subtitle: small explanation
+    - gif: optional gif url (or None)
+    - level: one of {"success","warning","error","info"} for styling choice
+    """
+
+    # Use your existing thresholds if already defined
+    # If you already have these constants earlier, delete these 4 lines.
+    HIGH_EXP = 0.65
+    LOW_EXP = 0.40
+    HIGH_IMP = 0.5
+    LOW_IMP = -0.5
+
+    # bucket expected + impact into 3 levels
+    if p_win >= HIGH_EXP:
+        exp_band = "HIGH"
+    elif p_win <= LOW_EXP:
+        exp_band = "LOW"
+    else:
+        exp_band = "MID"
+
+    if impact >= HIGH_IMP:
+        imp_band = "HIGH"
+    elif impact <= LOW_IMP:
+        imp_band = "LOW"
+    else:
+        imp_band = "MID"
+
+    outcome = "WIN" if win else "LOSS"
+
+    key = (outcome, exp_band, imp_band)
+
+    # GIFs: use hosted URLs or swap to local assets later (recommended for reliability)
+    GIF_FAIL = "https://media.giphy.com/media/3o6ZtaO9BZHcOjmErm/giphy.gif"
+    GIF_GOAT = "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"
+    GIF_ROBBED = "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif"
+    GIF_THROW = "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif"
+    GIF_CLUTCH = "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
+
+    reactions = {
+        # ----------------------------
+        # WIN reactions
+        # ----------------------------
+        ("WIN", "LOW", "HIGH"): {
+            "title": "YOU’RE THE GOAT 🐐",
+            "subtitle": "Low expected win @10 but you still pulled it off. Hero performance.",
+            "gif": GIF_GOAT,
+            "level": "success",
+        },
+        ("WIN", "LOW", "MID"): {
+            "title": "CLUTCH ENOUGH 😤",
+            "subtitle": "Expected to lose @10, but you found a way. Respect.",
+            "gif": GIF_CLUTCH,
+            "level": "success",
+        },
+        ("WIN", "LOW", "LOW"): {
+            "title": "…HOW DID YOU WIN? 🤨",
+            "subtitle": "Expected loss @10 and low impact — but a win is a win.",
+            "gif": None,
+            "level": "info",
+        },
+
+        ("WIN", "MID", "HIGH"): {
+            "title": "YOU CARRIED 🔥",
+            "subtitle": "Game was up in the air @10, but you showed up big.",
+            "gif": None,
+            "level": "success",
+        },
+        ("WIN", "MID", "MID"): {
+            "title": "MEH, SOLID 👍",
+            "subtitle": "Pretty normal win — you did alright.",
+            "gif": None,
+            "level": "info",
+        },
+        ("WIN", "MID", "LOW"): {
+            "title": "YOU GOT CARried 😭",
+            "subtitle": "You won, but your impact was low. Thank your teammates.",
+            "gif": None,
+            "level": "warning",
+        },
+
+        ("WIN", "HIGH", "HIGH"): {
+            "title": "TEXTBOOK WIN ✅",
+            "subtitle": "High expected win and you played well — you did your job.",
+            "gif": None,
+            "level": "success",
+        },
+        ("WIN", "HIGH", "MID"): {
+            "title": "EXPECTED WIN 🙂",
+            "subtitle": "High expected win @10 and you closed it out.",
+            "gif": None,
+            "level": "info",
+        },
+        ("WIN", "HIGH", "LOW"): {
+            "title": "WIN… BUT YOU ALMOST SOLD 😅",
+            "subtitle": "High expected win @10, low impact. Don’t push your luck next time.",
+            "gif": None,
+            "level": "warning",
+        },
+
+        # ----------------------------
+        # LOSS reactions
+        # ----------------------------
+        ("LOSS", "HIGH", "HIGH"): {
+            "title": "YOU WERE ROBBED 😭",
+            "subtitle": "High expected win @10 and high impact — this is certified unlucky.",
+            "gif": GIF_ROBBED,
+            "level": "error",
+        },
+        ("LOSS", "HIGH", "MID"): {
+            "title": "UNLUCKY LOSS 😩",
+            "subtitle": "Expected win @10 but it slipped away. Review the mid/late game.",
+            "gif": None,
+            "level": "warning",
+        },
+        ("LOSS", "HIGH", "LOW"): {
+            "title": "YOU REALLY SOLD THIS ONE 💥",
+            "subtitle": "Expected win @10 but low impact. This one’s on you.",
+            "gif": GIF_THROW,
+            "level": "error",
+        },
+
+        ("LOSS", "MID", "HIGH"): {
+            "title": "YOU TRIED 🫡",
+            "subtitle": "Game was uncertain @10, but your impact was high. Not a bad loss.",
+            "gif": None,
+            "level": "info",
+        },
+        ("LOSS", "MID", "MID"): {
+            "title": "MEH LOSS 😐",
+            "subtitle": "Pretty average loss. Not tragic, not heroic.",
+            "gif": None,
+            "level": "info",
+        },
+        ("LOSS", "MID", "LOW"): {
+            "title": "YOU REALLY SUCKED THIS GAME 💀",
+            "subtitle": "Low impact and a loss. Queue up the VOD and be honest with yourself.",
+            "gif": GIF_FAIL,
+            "level": "error",
+        },
+
+        ("LOSS", "LOW", "HIGH"): {
+            "title": "UNLUCKY, BUT RESPECT 👏",
+            "subtitle": "Expected loss @10, but you still had high impact. You fought.",
+            "gif": None,
+            "level": "info",
+        },
+        ("LOSS", "LOW", "MID"): {
+            "title": "EXPECTED LOSS 🤷",
+            "subtitle": "Low expected win @10 and it happened. Go next.",
+            "gif": None,
+            "level": "info",
+        },
+        ("LOSS", "LOW", "LOW"): {
+            "title": "DEMONICALLY BAD 💀",
+            "subtitle": "Expected loss @10 and low impact… yeah. We move.",
+            "gif": GIF_FAIL,
+            "level": "error",
+        },
+    }
+
+    # fallback (shouldn't hit, but safe)
+    return reactions.get(key, {
+        "title": "MEH 😐",
+        "subtitle": "Nothing special here.",
+        "gif": None,
+        "level": "info",
+    })
+
+
 # Streamlit UI setup
 st.set_page_config(page_title="Do I suck or am I unlucky?", layout="wide")
 st.title("Do I suck or am I unlucky?")
@@ -146,12 +345,14 @@ if missing:
 # Make sure win is boolean
 df["win"] = df["win"].astype(bool)
 
-# If bucket column doesn't exist, create it
-if "bucket" not in df.columns:
-    df["bucket"] = df.apply(
-        lambda r: bucket_rule(float(r["p_win_10min"]), bool(r["win"]), float(r["impact_score"])),
-        axis=1
-    )
+# Always (re)compute buckets so the dashboard matches your current logic
+df["bucket"] = df.apply(
+    lambda r: bucket_rule(float(r["p_win_10min"]), bool(r["win"]), float(r["impact_score"])),
+    axis=1
+)
+
+# Always (re)compute impact tags (OPTION B) so filters work
+df["impact_tag"] = df["impact_score"].apply(lambda x: impact_tag(float(x)))
 
 # Sidebar filters
 st.sidebar.header("Filters")
@@ -159,10 +360,32 @@ st.sidebar.header("Filters")
 roles = ["ALL"] + sorted([r for r in df.get("role", pd.Series(dtype=str)).dropna().unique().tolist()])
 champs = ["ALL"] + sorted([c for c in df.get("champion_name", pd.Series(dtype=str)).dropna().unique().tolist()])
 buckets = ["ALL"] + sorted(df["bucket"].dropna().unique().tolist())
+impact_tags = ["ALL"] + sorted(df["impact_tag"].dropna().unique().tolist())
 
+#Side bar filter choices
 role_choice = st.sidebar.selectbox("Role", roles)
 champ_choice = st.sidebar.selectbox("Champion", champs)
-bucket_choice = st.sidebar.selectbox("Bucket", buckets)
+
+# Bucket label helper (sidebar only)
+bucket_defs = {
+    "THROW": "expected win → loss (low impact)",
+    "UNLUCKY LOSS": "expected win → loss (high impact)",
+    "UPSET LOSS": "expected win → loss",
+    "CLUTCH WIN": "expected loss → win (high impact)",
+    "LUCKY WIN": "expected loss → win (low impact)",
+    "UPSET WIN": "expected loss → win",
+    "EXPECTED WIN": "expected win → win",
+    "EXPECTED LOSS": "expected loss → loss",
+    "TOSS-UP WIN": "toss-up @10 → win",
+    "TOSS-UP LOSS": "toss-up @10 → loss",
+}
+
+bucket_choice = st.sidebar.selectbox(
+    "Bucket",
+    buckets,
+    format_func=lambda b: "ALL" if b == "ALL" else f"{b} — {bucket_defs.get(b, '')}".strip(" —"),
+)
+impact_choice = st.sidebar.selectbox("Impact tag", impact_tags)
 win_choice = st.sidebar.selectbox("Result", ["ALL", "WIN", "LOSS"])
 
 # Apply filters
@@ -176,6 +399,9 @@ if champ_choice != "ALL" and "champion_name" in f.columns:
 
 if bucket_choice != "ALL":
     f = f[f["bucket"] == bucket_choice]
+
+if impact_choice != "ALL":
+    f = f[f["impact_tag"] == impact_choice]
 
 if win_choice == "WIN":
     f = f[f["win"] == True]
@@ -231,7 +457,7 @@ st.caption(
 
 plot_df = f.rename(columns={"p_win_10min": "expected_win_10"})
 
-cols = ["expected_win_10", "impact_score", "match_id", "win", "champion_name", "role"]
+cols = ["expected_win_10", "impact_score", "impact_tag", "match_id", "win", "champion_name", "role"]
 cols = [c for c in cols if c in plot_df.columns]  # keep only columns that exist
 plot_df = plot_df[cols].copy()
 
@@ -244,6 +470,7 @@ fig = px.scatter(
         "champion_name": ("champion_name" in plot_df.columns),
         "role": ("role" in plot_df.columns),
         "win": ("win" in plot_df.columns),
+        "impact_tag": ("impact_tag" in plot_df.columns),
         "expected_win_10": ":.3f",
         "impact_score": ":.3f",
     },
@@ -265,7 +492,7 @@ st.divider()
 st.subheader("Notable Games")
 
 HIGH_EXP = 0.65
-LOW_EXP = 0.35
+LOW_EXP = 0.40
 
 unlucky = df[(df["win"] == False) & (df["p_win_10min"] >= HIGH_EXP)] \
     .sort_values("p_win_10min", ascending=False).head(10)
@@ -273,7 +500,7 @@ unlucky = df[(df["win"] == False) & (df["p_win_10min"] >= HIGH_EXP)] \
 clutch = df[(df["win"] == True) & (df["p_win_10min"] <= LOW_EXP)] \
     .sort_values("p_win_10min", ascending=True).head(10)
 
-base_cols = ["match_id", "win", "impact_score", "p_win_10min", "bucket"]
+base_cols = ["match_id", "win", "impact_score", "impact_tag", "p_win_10min", "bucket"]
 extra_cols = [
     "champion_name", "role", "impact_rank_on_team",
     "kda", "cs_per_min", "kill_participation", "damage_share", "vision_per_min"
@@ -311,35 +538,26 @@ selected_match = st.selectbox("Select a match_id", options=match_options)
 row = df[df["match_id"] == selected_match].iloc[0]
 
 #-----------------
-#test
 exp10 = float(row["p_win_10min"])
 imp = float(row["impact_score"])
+outcome = bool(row["win"])
 
-if exp10 <= LOW_EXP and imp <= LOW_IMP:
-    st.markdown(
-        """
-        <style>
-        @keyframes popIn {
-            0%   { transform: scale(0.6); opacity: 0; }
-            60%  { transform: scale(1.15); opacity: 1; }
-            100% { transform: scale(1.0); opacity: 1; }
-        }
-        .you-suck {
-            text-align: center;
-            font-size: 64px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            padding: 18px 10px;
-            border-radius: 16px;
-            background: rgba(255,0,0,0.12);
-            border: 2px solid rgba(255,0,0,0.35);
-            animation: popIn 420ms ease-out;
-        }
-        </style>
-        <div class="you-suck">YOU SUCK 💀</div>
-        """,
-        unsafe_allow_html=True,
-    )
+r = reaction_for_game(exp10, outcome, imp)
+
+# show message
+if r["level"] == "success":
+    st.success(f"{r['title']} — {r['subtitle']}")
+elif r["level"] == "warning":
+    st.warning(f"{r['title']} — {r['subtitle']}")
+elif r["level"] == "error":
+    st.error(f"{r['title']} — {r['subtitle']}")
+else:
+    st.info(f"{r['title']} — {r['subtitle']}")
+
+# show gif if present
+if r["gif"]:
+    st.image(r["gif"], caption=r["title"], use_container_width=True)
+    
 #---------------
 
 st.write("### Selected match summary")
@@ -349,6 +567,7 @@ st.json({
     "role": row.get("role", None),
     "win": bool(row["win"]),
     "bucket": row.get("bucket", None),
+    "impact_tag": row.get("impact_tag", None),
     "impact_score": round(float(row["impact_score"]), 3),
     "impact_rank_on_team": row.get("impact_rank_on_team", None),
     "expected_win_10": round(float(row["p_win_10min"]), 3),
