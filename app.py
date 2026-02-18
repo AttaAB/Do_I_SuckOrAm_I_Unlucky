@@ -421,7 +421,16 @@ lc1, lc2, lc3, lc4 = st.columns(4)
 lc1.metric("Luck diff", f"{filt_luck['luck_diff']:.2f}")
 lc2.metric("Actual wins", filt_luck["actual_wins"])
 lc3.metric("Expected wins", f"{filt_luck['expected_wins']:.2f}")
-lc4.metric("Interpretation", luck_label(filt_luck["luck_diff"]))
+
+ld = float(filt_luck["luck_diff"])
+if ld > 0:
+    msg = f"You won {ld:.2f} more than expected"
+elif ld < 0:
+    msg = f"You lost {abs(ld):.2f} more than expected"
+else:
+    msg = "You won exactly as expected"
+
+lc4.metric("Summary", msg)
 
 st.caption(
     f"Overall: luck_diff = {filt_luck['luck_diff']:.2f} "
