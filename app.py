@@ -182,7 +182,7 @@ def bucket_comment(bucket: str, p_win: float, win: bool, impact: float) -> str:
 
     # Expected LOSS but WIN
     if b == "CLUTCH WIN":
-        return "Main character moment 🗿. You were moving DIFFERENT."
+        return "YOU ARE FAKER! Your team owes you for the win."
     if b == "LUCKY WIN":
         return "Be honest… you got carried 😭. Honor your teammates."
     if b == "UPSET WIN":
