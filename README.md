@@ -154,7 +154,7 @@ Current thresholds (easy to tune):
 
 `High expected win: p_win > 0.65`
 
-`Low expected win: p_win < 0.35`
+`Low expected win: p_win < 0.40`
 
 `High impact: impact_score > 0.5`
 
