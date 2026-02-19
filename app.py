@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 import time
 import plotly.express as px
+import streamlit.components.v1 as components
 
 # Paths
 
@@ -31,7 +32,6 @@ def load_df(path: Path) -> pd.DataFrame:
 def load_df_bytes(b: bytes) -> pd.DataFrame:
     """Load a CSV from uploaded bytes into a pandas DataFrame (cached)."""
     return pd.read_csv(BytesIO(b))
-
 
 def load_required_csv(path: Path, label: str) -> pd.DataFrame:
     """
@@ -134,195 +134,140 @@ def luck_metrics(d: pd.DataFrame) -> dict:
     }
 
 
-def luck_label(luck_diff: float) -> str:
-    if luck_diff >= 5:
-        return "Clearly lucky 🤯"
-    if luck_diff <= -5:
-        return "Clearly unlucky 💀"
-    if luck_diff >= 2.5:
-        return "Kinda lucky 🙂"
-    if luck_diff <= -2.5:
-        return "Kinda unlucky 😭"
-    return "About as expected 😐"
-
 #GIf Setup
-def reaction_for_game(p_win: float, win: bool, impact: float) -> dict:
+def gif_for_bucket(bucket: str) -> str | None:
     """
-    Return a reaction payload for a single game:
-    - title: big text
-    - subtitle: small explanation
-    - gif: optional gif url (or None)
-    - level: one of {"success","warning","error","info"} for styling choice
+    Return a gif URL for each bucket (or None for no gif).
     """
+    b = (bucket or "").strip().upper()
 
-    # Use your existing thresholds if already defined
-    # If you already have these constants earlier, delete these 4 lines.
-    HIGH_EXP = 0.65
-    LOW_EXP = 0.40
-    HIGH_IMP = 0.5
-    LOW_IMP = -0.5
+    gifs = {
+        # Expected WIN but LOSS
+        "THROW": "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif",
+        "UNLUCKY LOSS": "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif",
+        "UPSET LOSS": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Y0eDlzY2MyZTRzZGhjMHVlOWhhcHlzZ2FlbHBycHBxcXlkd3Y5eCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ka6M66Z58QEcXadCd4/giphy.gif", 
 
-    # bucket expected + impact into 3 levels
-    if p_win >= HIGH_EXP:
-        exp_band = "HIGH"
-    elif p_win <= LOW_EXP:
-        exp_band = "LOW"
-    else:
-        exp_band = "MID"
+        # Expected LOSS but WIN
+        "CLUTCH WIN": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnJtcThocDNwY2k4b3oyazZ4aDVsZnlrNG5rbWFxMnJqMzNiYml1ZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/j3hqssdFfHkpndO1qP/giphy.gif",
+        "LUCKY WIN": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmc2ZTkybXM4azlyaWc3ZHE4cjgyYmphcDZuODR4OXBkNGN5dTB0OSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/XatIdQKTrTaXnWAe1n/giphy.gif", 
+        "UPSET WIN": "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
 
-    if impact >= HIGH_IMP:
-        imp_band = "HIGH"
-    elif impact <= LOW_IMP:
-        imp_band = "LOW"
-    else:
-        imp_band = "MID"
+        # Expected outcomes
+        "EXPECTED WIN": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3Fuenc1OXFtMTRhdXRqbDF5d2R2OXVpaDVjZng2b2wxeTlmNmg5MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tM76xlB5idOYRwB0wR/giphy.gif",    
+        "EXPECTED LOSS": "https://media.giphy.com/media/7T33BLlB7NQrjozoRB/giphy.gif",
 
-    outcome = "WIN" if win else "LOSS"
-
-    key = (outcome, exp_band, imp_band)
-
-    # GIFs: use hosted URLs or swap to local assets later (recommended for reliability)
-    GIF_FAIL = "https://media.giphy.com/media/3o6ZtaO9BZHcOjmErm/giphy.gif"
-    GIF_GOAT = "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"
-    GIF_ROBBED = "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif"
-    GIF_THROW = "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif"
-    GIF_CLUTCH = "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
-
-    reactions = {
-        # ----------------------------
-        # WIN reactions
-        # ----------------------------
-        ("WIN", "LOW", "HIGH"): {
-            "title": "YOU’RE THE GOAT 🐐",
-            "subtitle": "Low expected win @10 but you still pulled it off. Hero performance.",
-            "gif": GIF_GOAT,
-            "level": "success",
-        },
-        ("WIN", "LOW", "MID"): {
-            "title": "CLUTCH ENOUGH 😤",
-            "subtitle": "Expected to lose @10, but you found a way. Respect.",
-            "gif": GIF_CLUTCH,
-            "level": "success",
-        },
-        ("WIN", "LOW", "LOW"): {
-            "title": "…HOW DID YOU WIN? 🤨",
-            "subtitle": "Expected loss @10 and low impact — but a win is a win.",
-            "gif": None,
-            "level": "info",
-        },
-
-        ("WIN", "MID", "HIGH"): {
-            "title": "YOU CARRIED 🔥",
-            "subtitle": "Game was up in the air @10, but you showed up big.",
-            "gif": None,
-            "level": "success",
-        },
-        ("WIN", "MID", "MID"): {
-            "title": "MEH, SOLID 👍",
-            "subtitle": "Pretty normal win — you did alright.",
-            "gif": None,
-            "level": "info",
-        },
-        ("WIN", "MID", "LOW"): {
-            "title": "YOU GOT CARried 😭",
-            "subtitle": "You won, but your impact was low. Thank your teammates.",
-            "gif": None,
-            "level": "warning",
-        },
-
-        ("WIN", "HIGH", "HIGH"): {
-            "title": "TEXTBOOK WIN ✅",
-            "subtitle": "High expected win and you played well — you did your job.",
-            "gif": None,
-            "level": "success",
-        },
-        ("WIN", "HIGH", "MID"): {
-            "title": "EXPECTED WIN 🙂",
-            "subtitle": "High expected win @10 and you closed it out.",
-            "gif": None,
-            "level": "info",
-        },
-        ("WIN", "HIGH", "LOW"): {
-            "title": "WIN… BUT YOU ALMOST SOLD 😅",
-            "subtitle": "High expected win @10, low impact. Don’t push your luck next time.",
-            "gif": None,
-            "level": "warning",
-        },
-
-        # ----------------------------
-        # LOSS reactions
-        # ----------------------------
-        ("LOSS", "HIGH", "HIGH"): {
-            "title": "YOU WERE ROBBED 😭",
-            "subtitle": "High expected win @10 and high impact — this is certified unlucky.",
-            "gif": GIF_ROBBED,
-            "level": "error",
-        },
-        ("LOSS", "HIGH", "MID"): {
-            "title": "UNLUCKY LOSS 😩",
-            "subtitle": "Expected win @10 but it slipped away. Review the mid/late game.",
-            "gif": None,
-            "level": "warning",
-        },
-        ("LOSS", "HIGH", "LOW"): {
-            "title": "YOU REALLY SOLD THIS ONE 💥",
-            "subtitle": "Expected win @10 but low impact. This one’s on you.",
-            "gif": GIF_THROW,
-            "level": "error",
-        },
-
-        ("LOSS", "MID", "HIGH"): {
-            "title": "YOU TRIED 🫡",
-            "subtitle": "Game was uncertain @10, but your impact was high. Not a bad loss.",
-            "gif": None,
-            "level": "info",
-        },
-        ("LOSS", "MID", "MID"): {
-            "title": "MEH LOSS 😐",
-            "subtitle": "Pretty average loss. Not tragic, not heroic.",
-            "gif": None,
-            "level": "info",
-        },
-        ("LOSS", "MID", "LOW"): {
-            "title": "YOU REALLY SUCKED THIS GAME 💀",
-            "subtitle": "Low impact and a loss. Queue up the VOD and be honest with yourself.",
-            "gif": GIF_FAIL,
-            "level": "error",
-        },
-
-        ("LOSS", "LOW", "HIGH"): {
-            "title": "UNLUCKY, BUT RESPECT 👏",
-            "subtitle": "Expected loss @10, but you still had high impact. You fought.",
-            "gif": None,
-            "level": "info",
-        },
-        ("LOSS", "LOW", "MID"): {
-            "title": "EXPECTED LOSS 🤷",
-            "subtitle": "Low expected win @10 and it happened. Go next.",
-            "gif": None,
-            "level": "info",
-        },
-        ("LOSS", "LOW", "LOW"): {
-            "title": "DEMONICALLY BAD 💀",
-            "subtitle": "Expected loss @10 and low impact… yeah. We move.",
-            "gif": GIF_FAIL,
-            "level": "error",
-        },
+        # Toss-ups
+        "TOSS-UP WIN": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODU2MjBzd2w4YThkZmN2aXNudW52YmZjMDB1ajhidXJicjZjcjU1ZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/dijK6WYRdSoJEikGPS/giphy.gif",  
+        "TOSS-UP LOSS": "https://media.giphy.com/media/3og0IPxMM0erATueVW/giphy.gif",
     }
 
-    # fallback (shouldn't hit, but safe)
-    return reactions.get(key, {
-        "title": "MEH 😐",
-        "subtitle": "Nothing special here.",
-        "gif": None,
-        "level": "info",
-    })
+    return gifs.get(b)
+
+# Comment setup
+def bucket_comment(bucket: str, p_win: float, win: bool, impact: float) -> str:
+    """
+    One message per bucket.
+    - High impact: praise / "team diff" / "you deserved better"
+    - Low impact: roast (but only when it's clearly on you)
+    """
+    b = (bucket or "TOSS-UP LOSS").strip().upper()
+
+    # Expected WIN but LOSS
+    if b == "THROW":
+        return "YOU SUCK 💀. Someone definitely spam pinged you."
+    if b == "UNLUCKY LOSS":
+        return "Nah you didn’t deserve this 😭 You were doing your job and still took the L. Team diff."
+    if b == "UPSET LOSS":
+        return "Winnable at 10… then the game turned into a disaster... Feels bad."
+
+    # Expected LOSS but WIN
+    if b == "CLUTCH WIN":
+        return "Main character moment 🗿. You were moving DIFFERENT."
+    if b == "LUCKY WIN":
+        return "Be honest… you got carried 😭. Honor your teammates."
+    if b == "UPSET WIN":
+        return "Enemy team fumbled and you collected the LP ✅."
+
+    # Expected outcomes
+    if b == "EXPECTED WIN":
+        return "Clean. No drama. No int. Just business ✅."
+    if b == "EXPECTED LOSS":
+        return "Unfortunate... blame the rift, go next 🤷."
+
+    # Toss-ups
+    if b == "TOSS-UP WIN":
+        return "Nobody knew what was happening… but you ended with LP ✅."
+    if b == "TOSS-UP LOSS":
+        return "Nobody knew what was happening… and it ended in pain ❌."
+
+
+    # Fallback (shouldn't hit, but safe)
+    return "Standard game. Nothing to blame but the replay 🫡."
+
+
+def bucket_level(bucket: str, win: bool, impact: float) -> str:
+    """
+    Styling helper.
+    """
+    b = (bucket or "").strip().upper()
+
+    if win:
+        if b in ("CLUTCH WIN", "UPSET WIN", "EXPECTED WIN", "TOSS-UP WIN"):
+            return "success"
+        if b == "LUCKY WIN":
+            return "warning"
+        return "info"
+
+    # Loss
+    if b == "THROW":
+        return "error"
+    if b in ("UNLUCKY LOSS", "UPSET LOSS"):
+        return "warning" if impact < 0.5 else "error"
+    if b in ("EXPECTED LOSS", "TOSS-UP LOSS"):
+        return "info"
+    return "info"
 
 
 # Streamlit UI setup
 st.set_page_config(page_title="Do I suck or am I unlucky?", layout="wide")
-st.title("Do I suck or am I unlucky?")
-st.caption("I got tired of blaming ‘team diff’ without receipts… so I built this to tell me if I’m unlucky or if I acctually just suck.")
+#Title
+st.markdown(
+    """
+    <style>
+    .hero-card{
+        max-width: 1100px;
+        margin: 10px auto 22px auto;
+        padding: 22px 22px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.14);
+        background: rgba(255,255,255,0.04);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+        text-align: center;
+    }
+    .hero-title{
+        font-size: 52px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        line-height: 1.05;
+        margin: 0 0 10px 0;
+    }
+    .hero-sub{
+        font-size: 15px;
+        opacity: 0.85;
+        margin: 0;
+    }
+    </style>
+
+    <div class="hero-card">
+      <div class="hero-title">Do I suck or am I unlucky?</div>
+      <div class="hero-sub">
+        I got tired of blaming ‘team diff’ without receipts… so I built this to tell me if I’m unlucky or if I actually just suck.
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # Load data (deploy-safe)
 # - If SCORED exists, use it
@@ -351,7 +296,7 @@ df["bucket"] = df.apply(
     axis=1
 )
 
-# Always (re)compute impact tags (OPTION B) so filters work
+# Always (re)compute impact tags so filters work
 df["impact_tag"] = df["impact_score"].apply(lambda x: impact_tag(float(x)))
 
 # Sidebar filters
@@ -389,7 +334,6 @@ impact_choice = st.sidebar.selectbox("Impact tag", impact_tags)
 win_choice = st.sidebar.selectbox("Result", ["ALL", "WIN", "LOSS"])
 
 # Apply filters
-
 f = df.copy()
 
 if role_choice != "ALL" and "role" in f.columns:
@@ -445,7 +389,7 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Games played", len(f))
 col2.metric("Win rate", f"{(float(f['win'].mean())*100):.1f}%" if len(f) else "0.0%")
 col3.metric("Avg impact_score", round(float(f["impact_score"].mean()), 3) if len(f) else 0.0)
-col4.metric("Avg expected win @ 10 minutes",f"{(float(f['p_win_10min'].mean())*100):.1f}%" if len(f) else "0.0%")
+col4.metric("Avg expected win @ 10 minutes", f"{(float(f['p_win_10min'].mean())*100):.1f}%" if len(f) else "0.0%")
 
 st.divider()
 
@@ -542,34 +486,142 @@ st.divider()
 st.subheader("Match details")
 st.caption("Pick a match to inspect.")
 
-match_options = f["match_id"].tolist() if len(f) else df["match_id"].tolist()
-selected_match = st.selectbox("Select a match_id", options=match_options)
+match_ids = f["match_id"].tolist() if len(f) else df["match_id"].tolist()
+match_options = ["— Select a match —"] + match_ids
+selected_match = st.selectbox("Select a match_id", options=match_options, index=0)
+
+if selected_match == "— Select a match —":
+    st.info("Pick a match to review.")
+    st.stop()
 
 row = df[df["match_id"] == selected_match].iloc[0]
 
-#-----------------
 exp10 = float(row["p_win_10min"])
 imp = float(row["impact_score"])
 outcome = bool(row["win"])
+b = str(row.get("bucket", ""))
 
-r = reaction_for_game(exp10, outcome, imp)
+comment = bucket_comment(b, exp10, outcome, imp)
+level = bucket_level(b, outcome, imp)
 
-# show message
-if r["level"] == "success":
-    st.success(f"{r['title']} — {r['subtitle']}")
-elif r["level"] == "warning":
-    st.warning(f"{r['title']} — {r['subtitle']}")
-elif r["level"] == "error":
-    st.error(f"{r['title']} — {r['subtitle']}")
-else:
-    st.info(f"{r['title']} — {r['subtitle']}")
 
-# show gif if present
-if r["gif"]:
-    st.image(r["gif"], caption=r["title"], use_container_width=True)
-    
-#---------------
+# show message (animated + centered) (cannot figure out how to show the animation on streamlit)
+css = """
+<style>
+@keyframes popZoom {
+  0%   { transform: scale(0.75); opacity: 0; filter: blur(2px); }
+  60%  { transform: scale(1.06); opacity: 1; filter: blur(0px); }
+  100% { transform: scale(1.00); opacity: 1; }
+}
 
+@keyframes smokeFloat {
+  0%   { transform: translate(-50%, 0) scale(0.9); opacity: 0.0; }
+  30%  { opacity: 0.28; }
+  100% { transform: translate(-50%, -55px) scale(1.25); opacity: 0.0; }
+}
+
+.dramatic-wrap{
+  margin: 10px 0 18px 0;
+  padding: 18px 16px;
+  border-radius: 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: popZoom 420ms ease-out;
+}
+
+.dramatic-text{
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  line-height: 1.12;
+}
+
+.dramatic-sub{
+  margin-top: 8px;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.smoke{
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255,255,255,0.20), rgba(255,255,255,0.0) 60%);
+  filter: blur(6px);
+  transform: translateX(-50%);
+  animation: smokeFloat 1100ms ease-out;
+  pointer-events: none;
+}
+
+.theme-success { border: 2px solid rgba(0, 255, 140, 0.35); background: rgba(0, 255, 140, 0.09); }
+.theme-warning { border: 2px solid rgba(255, 190, 0, 0.35); background: rgba(255, 190, 0, 0.10); }
+.theme-error   { border: 2px solid rgba(255, 60, 60, 0.42);  background: rgba(255, 60, 60, 0.12); }
+.theme-info    { border: 2px solid rgba(180, 180, 180, 0.35); background: rgba(180, 180, 180, 0.10); }
+</style>
+"""
+
+theme_class = {
+    "success": "theme-success",
+    "warning": "theme-warning",
+    "error": "theme-error",
+    "info": "theme-info",
+}.get(level, "theme-info")
+
+bucket_label = b if b else "RESULT"
+
+html = f"""
+{css}
+<div class="dramatic-wrap {theme_class}">
+  <div class="smoke"></div>
+  <div class="dramatic-text">{comment}</div>
+  <div class="dramatic-sub">Verdict: <b>{bucket_label}</b> • p(win@10)={exp10:.2f} • impact={imp:.2f}</div>
+</div>
+"""
+
+gif = gif_for_bucket(b)
+if gif:
+    st.markdown(
+    """
+    <style>
+    .gif-wrap{
+      max-width: 520px;
+      margin: 0 auto 14px auto;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      aspect-ratio: 16 / 9;          /* forces consistent box height */
+    }
+    .gif-wrap img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;             /* fill the box, crop if needed */
+      display: block;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+    st.markdown(
+        f"""
+        <div class="gif-wrap">
+          <img src="{gif}" alt="reaction gif">
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+
+st.markdown(html, unsafe_allow_html=True)
+
+# Match Summary
 st.write("### Selected match summary")
 st.json({
     "match_id": row["match_id"],
