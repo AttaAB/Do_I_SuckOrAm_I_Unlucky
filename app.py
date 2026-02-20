@@ -641,5 +641,4 @@ m2.metric("CS/min", round(float(row.get("cs_per_min", 0.0)), 2))
 m3.metric("Kill Participation", f"{(float(row.get('kill_participation', 0.0)) * 100):.1f}%")
 m4.metric("Damage Share", f"{(float(row.get('damage_share', 0.0)) * 100):.1f}%")
 
-f"{(float(f['win'].mean())*100):.1f}%" if len(f) else "0.0%")
 st.caption("So.... am I unlucky, or do I just suck? 🤔")
