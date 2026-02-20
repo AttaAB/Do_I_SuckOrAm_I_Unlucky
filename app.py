@@ -353,6 +353,10 @@ if win_choice == "WIN":
 elif win_choice == "LOSS":
     f = f[f["win"] == False]
 
+# sanity check: if no games match, show warning and stop
+if len(f) == 0:
+    st.warning("No games match those filters. Try relaxing one of the filters.")
+    st.stop()
 
 # Highlight: Luck differential (FULL + FILTERED)
 full_luck = luck_metrics(df)
@@ -504,6 +508,9 @@ b = str(row.get("bucket", ""))
 comment = bucket_comment(b, exp10, outcome, imp)
 level = bucket_level(b, outcome, imp)
 
+# set up match selector with all matches in the current filtered dataframe (f) for better UX, but fallback to all matches in df if f is empty (e.g. due to filters)
+match_options = f["match_id"].tolist()
+selected_match = st.selectbox("Select a match_id", options=match_options)
 
 # show message (animated + centered) (cannot figure out how to show the animation on streamlit)
 css = """
