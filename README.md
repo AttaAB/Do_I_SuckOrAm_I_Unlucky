@@ -1,5 +1,6 @@
-<img width="1903" height="638" alt="image" src="https://github.com/user-attachments/assets/4060e263-57bf-4802-9c63-302d9124bf41" />
-Do I Suck, or Am I Unlucky? | A League of Legends analytics project powered by the Riot API
+<img width="1910" height="554" alt="image" src="https://github.com/user-attachments/assets/baba3f34-3ba3-4a23-85de-e3af584c4745" />
+
+*Do I Suck, or Am I Unlucky?* | A League of Legends analytics project powered by the Riot API
 
 ---
 
@@ -11,7 +12,7 @@ Within a few days, I remembered **exactly** why I retired.
 
 Because I kept losing games that I **clearly** should have won …or so I thought.
 
-Instead of defaulting to “team diff” and staying delusional forever, I decided to do something different:  
+Instead of defaulting to “team diff”, I decided to do something different:  
 I built an analytics project to answer the question once and for all: **Am I Unlucky… or do I actually just suck?**
 
 ---
@@ -62,12 +63,12 @@ Roles have different baselines:
 - laners naturally have higher CS  
 - junglers often have different KP patterns  
 
-So comparing raw CS/min across roles is… not fair.
+So comparing raw stats across roles is… not fair.
 
 ### Z-score standardization (within each role)
 For each metric **within a role group**:
 
-z = (x - mean_{role}/(standard_deviation{role})
+z = (x - mean{role}/(standard_deviation{role})
 
 Meaning:
 - positive z = above-average for my role  
@@ -145,10 +146,16 @@ In plain English:
 ## Buckets (game review labels)
 
 After merging impact + expected win, I label games like:
-- **UNLUCKY LOSS**: high expected win but loss  
-- **CLUTCH WIN**: low expected win but win  
-- **THROW?**: high expected win + low impact + loss  
-- **NORMAL**: everything else
+- **EXPECTED WIN:** high expected win + win
+- **EXPECTED LOSS:** low expected win + loss
+- **LUCKY WIN:** low expected win + low impact + win
+- **UNLUCKY LOSS:** high expected win + high impact + loss
+- **CLUTCH WIN:** low expected win + high impact + win
+- **THROW:** high expected win + low impact + loss
+- **UPSET WIN:** low expected win + win (impact not extreme)
+- **UPSET LOSS:** high expected win + loss (impact not extreme)
+- **TOSS-UP WIN:** neither high nor low expected win + win
+- **TOSS-UP LOSS:** neither high nor low expected win + loss
 
 Current thresholds (easy to tune):
 
@@ -164,17 +171,7 @@ Current thresholds (easy to tune):
 
 ---
 
-## Project outputs
-
-You’ll end up with:
-- `data/raw/` — saved match JSON files  
-- `data/timeline_raw/` — timeline JSON files  
-- `data/processed/` — clean CSVs (players, my games, impact, expected win probs, merged scored file)  
-- `reports/` — text reports + optional plots  
-
----
-
-## Setup (run it on your machine)
+## Setup (If you'd like to run it)
 
 ### 1) Create a virtual environment
 ```bash
@@ -206,13 +203,21 @@ To launch the interactive dashboard locally, run:
 ```bash
 streamlit run app.py
 ```
+
+## Project outputs
+
+You’ll end up with:
+- `data/raw/` — saved match JSON files  
+- `data/timeline_raw/` — timeline JSON files  
+- `data/processed/` — clean CSVs (players, my games, impact, expected win probs, merged scored file)  
+- `reports/` — text reports + optional plots  
+
 ---
 
 ## Notes / limitations
 - This is a learning project, not a perfect “truth machine.”
 - Sample size matters: small match counts = noisy model.
-- impact_score weights are subjective (I’m open to improving them).
-- The expected-win model is intentionally simple — there are definitely more advanced ways to do this.
+- The expected-win model is intentionally simple — there are definitely more robust methods.
 
 ## Future improvements (if I don’t get tilted and quit again)
 - Better feature engineering (matchups, scaling champs, objective timings)
